@@ -1,67 +1,47 @@
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>Code Challenge</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.11.8/semantic.min.css"
-    />
-    <link rel="stylesheet" href="assets/index.css" />
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-  </head>
-  <body>
-    <!-- navbar -->
-    <div class="heading">
-      <div class="item">
-        <h2 class="ui header">
-          <i class="orange ticket icon"></i>
-          <div class="content">FLATDANGO</div>
-          <div class="sub header" id="subtitle">BUY MOVIE TICKETS</div>
-        </h2>
-      </div>
-    </div>
+document.addEventListener("DOMContentLoaded", function () {
+  const amiiboList = document.getElementById("amiibo-list");
 
-    <div class="ui centered grid">
-      <div class="four wide column">
-        <div class="list-container">
-          <!-- side menu -->
-          <ul class="ui divided list" id="films">
-            <li class="film item">Movie titles will go here.</li>
-          </ul>
-        </div>
-      </div>
+  // Fetch data from the JSON server
+  fetch("http://localhost:3000/amiibo")
+      .then(response => response.json())
+      .then(data => {
+          // Display fetched data on the webpage
+          data.forEach(amiibo => {
+              const amiiboCard = document.createElement("div");
+              amiiboCard.classList.add("amiibo-card");
+              amiiboCard.innerHTML = `
+                  <img src="${amiibo.image}" alt="${amiibo.name}">
+                  <p>${amiibo.name}</p>
+                  <button class="add-to-cart" data-in-cart="false">Download</button>
+                  <textarea class="comment" placeholder="Leave a comment"></textarea>
+                  <button class="submit-feedback">Submit Feedback</button>
+              `;
+              amiiboList.appendChild(amiiboCard);
+          });
 
-      <!-- poster -->
-      <div class="four wide column">
-        <img
-          id="poster"
-          src="assets/placeholderImage.png"
-          alt="[MOVIE TITLE]"
-        />
-      </div>
+          // Add event listener for "add to cart" button
+          const addToCartButtons = document.querySelectorAll(".add-to-cart");
+          addToCartButtons.forEach(button => {
+              button.addEventListener("click", function () {
+                  if (button.dataset.inCart === "false") {
+                      button.textContent = "In Cart";
+                      button.dataset.inCart = "true";
+                  } else {
+                      button.textContent = "Download";
+                      button.dataset.inCart = "false";
+                  }
+              });
+          });
 
-      <!-- showing info -->
-      <div class="four wide column">
-        <div class="ui cards" id="showing">
-          <div class="card">
-            <div id="title" class="title">[MOVIE TITLE]</div>
-            <div id="runtime" class="meta">[RUNTIME] minutes</div>
-            <div class="content">
-              <div class="description">
-                <div id="film-info">[INSERT MOVIE DESCRIPTION HERE]</div>
-                <span id="showtime" class="ui label">[SHOWTIME]</span>
-                <span id="ticket-num">[X]</span> remaining tickets
-              </div>
-            </div>
-            <div class="extra content">
-              <button id="buy-ticket" class="ui orange button">
-                Buy Ticket
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <script src="src/index.js"></script>
-  </body>
-</html>
+          // Add event listener for "submit feedback" button
+          const submitFeedbackButtons = document.querySelectorAll(".submit-feedback");
+          submitFeedbackButtons.forEach(button => {
+              button.addEventListener("click", function () {
+                  const comment = button.previousElementSibling.value;
+                  // Send comment to server or perform any desired action
+                  console.log("Feedback submitted:", comment);
+              });
+          });
+      })
+      .catch(error => console.error("Error fetching data:", error));
+});
